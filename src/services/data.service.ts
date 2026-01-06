@@ -11,7 +11,7 @@ import { AppData, GalleryImage, Friend } from '../models/app-data.model';
 export class DataService {
   // FIX: Explicitly type the injected HttpClient to resolve 'unknown' type error.
   private http: HttpClient = inject(HttpClient);
-  private data$: Observable<AppData> = this.http.get<AppData>('src/assets/db.json').pipe(
+  private data$: Observable<AppData> = this.http.get<AppData>('/src/assets/db.json').pipe(
     shareReplay(1) // Cache the response to avoid multiple HTTP requests
   );
 
