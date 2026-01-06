@@ -1,6 +1,7 @@
-import { Component, ChangeDetectionStrategy, input, output, signal, effect } from '@angular/core';
+import { Component, ChangeDetectionStrategy, input, output, signal, effect, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Post } from '../../models/post.model';
+import { GeminiService } from '../../services/gemini.service';
 
 @Component({
   selector: 'app-edit-post-modal',
@@ -13,11 +14,18 @@ export class EditPostModalComponent {
   initialState = input<Post | null>(null);
   close = output<void>();
   save = output<Post>();
+  
+  private geminiService = inject(GeminiService);
 
   // Use a signal to hold the form data
   postData = signal<Partial<Post>>({});
-
   isNewPost = signal(true);
+  
+  // --- AI Generation State ---
+  aiTopic = signal('');
+  isGenerating = signal(false);
+  geminiError = this.geminiService.error;
+
 
   constructor() {
     effect(() => {
@@ -38,7 +46,28 @@ export class EditPostModalComponent {
     });
   }
 
-  // Helper to update signal for ngModel changes
+  // --- AI Methods ---
+  onAiTopicChange(topic: string): void {
+    this.aiTopic.set(topic);
+  }
+
+  async generateWithAi(): Promise<void> {
+    const topic = this.aiTopic().trim();
+    if (!topic || this.isGenerating()) return;
+
+    this.isGenerating.set(true);
+    const result = await this.geminiService.generateBlogPost(topic);
+    if (result) {
+      this.postData.update(p => ({
+        ...p,
+        title: result.title,
+        summary: result.summary,
+      }));
+    }
+    this.isGenerating.set(false);
+  }
+
+  // --- Form Field Methods ---
   onTitleChange(title: string): void {
     this.postData.update(p => ({ ...p, title }));
   }
