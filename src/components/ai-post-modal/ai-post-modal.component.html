@@ -1,0 +1,93 @@
+<div class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4 animate-fade-in" (click)="handleClose()">
+  <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl w-full max-w-2xl m-4 transform animate-scale-up flex flex-col max-h-[90vh]" (click)="$event.stopPropagation()">
+    
+    <!-- Header -->
+    <div class="flex-shrink-0 flex justify-between items-center p-5 border-b border-gray-200 dark:border-gray-700">
+      <h3 class="text-xl font-bold text-gray-800 dark:text-gray-100 flex items-center">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 mr-2 text-purple-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+           <path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+        </svg>
+        {{ isNewPost() ? '创建新文章' : '编辑文章' }}
+      </h3>
+      <button (click)="handleClose()" class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+        </svg>
+      </button>
+    </div>
+
+    <!-- Body (Scrollable Form) -->
+    <div class="flex-grow p-6 space-y-4 overflow-y-auto">
+      <!-- Title -->
+      <div>
+        <label for="title" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">标题</label>
+        <input 
+          type="text" 
+          id="title"
+          name="title"
+          [ngModel]="postData().title"
+          (ngModelChange)="onTitleChange($event)"
+          placeholder="文章的标题"
+          required
+          class="w-full px-3 py-2 bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-pink-500 focus:border-pink-500 transition">
+      </div>
+
+      <!-- Summary -->
+      <div>
+        <label for="summary" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">摘要</label>
+        <textarea 
+          id="summary"
+          name="summary"
+          rows="3"
+          [ngModel]="postData().summary"
+          (ngModelChange)="onSummaryChange($event)"
+          placeholder="文章的简短描述"
+          required
+          class="w-full px-3 py-2 bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-pink-500 focus:border-pink-500 transition"></textarea>
+      </div>
+
+      <!-- Content (Markdown) -->
+      <div>
+        <label for="content" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">内容 (Markdown)</label>
+        <textarea 
+          id="content"
+          name="content"
+          rows="10"
+          [ngModel]="postData().content"
+          (ngModelChange)="onContentChange($event)"
+          placeholder="在这里输入你的文章内容，支持 Markdown 语法..."
+          class="w-full px-3 py-2 bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-pink-500 focus:border-pink-500 transition font-mono"></textarea>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="flex-shrink-0 flex justify-end space-x-3 p-5 bg-gray-50 dark:bg-gray-800/50 rounded-b-2xl border-t border-gray-200 dark:border-gray-700">
+      <button (click)="handleClose()" class="px-4 py-2 bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-300 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-600 transition">
+        取消
+      </button>
+      <button 
+        (click)="handleSave()"
+        [disabled]="!postData().title?.trim() || !postData().summary?.trim()"
+        class="px-4 py-2 bg-pink-500 text-white font-semibold rounded-lg shadow-md hover:bg-pink-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
+        保存文章
+      </button>
+    </div>
+  </div>
+</div>
+
+<style>
+.animate-fade-in {
+  animation: fadeIn 0.3s ease-out forwards;
+}
+.animate-scale-up {
+  animation: scaleUp 0.3s ease-out forwards;
+}
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+@keyframes scaleUp {
+  from { opacity: 0; transform: scale(0.95); }
+  to { opacity: 1; transform: scale(1); }
+}
+</style>

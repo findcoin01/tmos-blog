@@ -1,0 +1,78 @@
+@if (post(); as p) {
+<div class="group relative bg-white dark:bg-gray-800 rounded-2xl shadow-lg overflow-hidden transform hover:-translate-y-1 transition-all duration-300 ease-in-out">
+  
+  <!-- Management Buttons -->
+  @if (isAdmin()) {
+    <div class="absolute top-2 right-2 z-10 flex space-x-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+      <button (click)="onEdit($event)" aria-label="Edit Post" class="w-8 h-8 rounded-full bg-white/70 dark:bg-gray-900/70 backdrop-blur-sm flex items-center justify-center text-blue-500 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 transition-colors">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+          <path d="M17.414 2.586a2 2 0 00-2.828 0L7 10.172V13h2.828l7.586-7.586a2 2 0 000-2.828z" />
+          <path fill-rule="evenodd" d="M2 6a2 2 0 012-2h4a1 1 0 010 2H4v10h10v-4a1 1 0 112 0v4a2 2 0 01-2 2H4a2 2 0 01-2-2V6z" clip-rule="evenodd" />
+        </svg>
+      </button>
+      <button (click)="onDelete($event)" aria-label="Delete Post" class="w-8 h-8 rounded-full bg-white/70 dark:bg-gray-900/70 backdrop-blur-sm flex items-center justify-center text-red-500 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300 transition-colors">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+          <path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm4 0a1 1 0 012 0v6a1 1 0 11-2 0V8z" clip-rule="evenodd" />
+        </svg>
+      </button>
+    </div>
+  }
+
+  @if (priority()) {
+    <img [ngSrc]="p.imageUrl" [alt]="p.title" width="600" height="400" priority class="w-full h-48 object-cover"/>
+  } @else {
+    <img [ngSrc]="p.imageUrl" [alt]="p.title" width="600" height="400" class="w-full h-48 object-cover"/>
+  }
+  
+  <div class="p-5">
+    <!-- Tags -->
+    <div class="flex flex-wrap gap-2 mb-3">
+      @for (tag of p.tags; track tag) {
+        <span class="px-3 py-1 text-xs font-medium rounded-full"
+              [class]="getTagColor(tag)">
+          {{ tag }}
+        </span>
+      }
+    </div>
+
+    <!-- Title -->
+    <h2 class="text-xl font-bold text-gray-800 dark:text-gray-100 mb-3 leading-tight">{{ p.title }}</h2>
+
+    <!-- Summary -->
+    <p class="text-gray-600 dark:text-gray-400 text-sm mb-4 leading-relaxed">{{ p.summary }}</p>
+
+    <!-- Read More Button -->
+    <div class="text-right mb-4">
+      <a [routerLink]="['/post', p.id]" class="inline-block bg-gradient-to-r from-purple-500 to-pink-500 text-white text-sm font-bold py-2 px-4 rounded-full hover:shadow-lg transition-transform transform hover:-translate-y-0.5">
+        阅读全文 &rarr;
+      </a>
+    </div>
+
+    <!-- Author and Stats -->
+    <div class="flex items-center justify-between text-gray-500 dark:text-gray-400 border-t border-gray-100 dark:border-gray-700 pt-4">
+      <div class="flex items-center">
+        <img [ngSrc]="p.authorAvatarUrl" alt="Author" width="32" height="32" class="w-8 h-8 rounded-full mr-3"/>
+        <div>
+            <p class="text-sm font-semibold text-gray-700 dark:text-gray-300">{{ p.author }}</p>
+            <p class="text-xs">{{ p.publishDate }}</p>
+        </div>
+      </div>
+
+      <div class="flex items-center space-x-4 text-sm">
+        <div class="flex items-center">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1 text-pink-400" viewBox="0 0 20 20" fill="currentColor">
+                <path fill-rule="evenodd" d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z" clip-rule="evenodd" />
+            </svg>
+            <span>{{ p.likes }}</span>
+        </div>
+        <div class="flex items-center">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1 text-blue-400" viewBox="0 0 20 20" fill="currentColor">
+                <path fill-rule="evenodd" d="M18 10c0 3.866-3.582 7-8 7a8.839 8.839 0 01-4.083-.982L2 17l1.437-3.437A7.962 7.962 0 012 10c0-3.866 3.582-7 8-7s8 3.134 8 7zM4.416 14.332a6.002 6.002 0 0011.168 0H4.416z" clip-rule="evenodd" />
+            </svg>
+            <span>{{ p.comments }}</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+}
