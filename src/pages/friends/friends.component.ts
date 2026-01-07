@@ -14,7 +14,8 @@ import { Friend } from '../../models/app-data.model';
       
       <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
         @for (friend of friends(); track friend.name) {
-          <a [href]="friend.link" target="_blank" rel="noopener noreferrer" 
+          <a [href]="friend.link" target="_blank" rel="noopener noreferrer"
+             (click)="handleFriendClick($event, friend.link)"
              class="group block bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-6 text-center transform hover:-translate-y-2 transition-all duration-300 ease-in-out">
             <img [ngSrc]="friend.avatarUrl" [alt]="friend.name" width="80" height="80" class="w-20 h-20 rounded-full mx-auto mb-4 border-4 border-transparent group-hover:border-pink-400 transition-colors duration-300" />
             <h3 class="text-xl font-bold text-gray-800 dark:text-gray-100 mb-2">{{ friend.name }}</h3>
@@ -39,5 +40,11 @@ export class FriendsComponent {
         this.friends.set([]); // Set to empty array on error
       },
     });
+  }
+
+  handleFriendClick(event: MouseEvent, link: string): void {
+    if (link === '#') {
+      event.preventDefault();
+    }
   }
 }

@@ -1,4 +1,4 @@
-import { Component, ChangeDetectionStrategy, inject, signal, viewChild, ElementRef, effect } from '@angular/core';
+import { Component, ChangeDetectionStrategy, inject, signal, viewChild, ElementRef, effect, viewChildren } from '@angular/core';
 import { Router, RouterLink, RouterLinkActive } from '@angular/router';
 import { ThemeService } from '../../services/theme.service';
 
@@ -32,41 +32,88 @@ import { ThemeService } from '../../services/theme.service';
                 <h1 class="text-3xl font-bold bg-gradient-to-r from-purple-500 to-pink-500 text-transparent bg-clip-text mb-3">
                   TMOS
                 </h1>
-                <nav>
-                  <ul class="flex space-x-6 justify-center">
-                    <li>
-                      <a routerLink="/home" 
-                         routerLinkActive="text-pink-500 border-pink-400"
-                         [routerLinkActiveOptions]="{ exact: true }"
-                         class="text-gray-600 dark:text-gray-300 hover:text-pink-500 dark:hover:text-pink-400 transition-colors duration-300 font-medium pb-1 border-b-2 border-transparent">首页</a>
-                    </li>
-                    <li>
-                      <a routerLink="/articles" 
-                         routerLinkActive="text-pink-500 border-pink-400"
-                         class="text-gray-600 dark:text-gray-300 hover:text-pink-500 dark:hover:text-pink-400 transition-colors duration-300 font-medium pb-1 border-b-2 border-transparent">文章</a>
-                    </li>
-                    <li>
-                      <a routerLink="/gallery" 
-                         routerLinkActive="text-pink-500 border-pink-400"
-                         class="text-gray-600 dark:text-gray-300 hover:text-pink-500 dark:hover:text-pink-400 transition-colors duration-300 font-medium pb-1 border-b-2 border-transparent">相册</a>
-                    </li>
-                    <li>
-                      <a routerLink="/archive" 
-                         routerLinkActive="text-pink-500 border-pink-400"
-                         class="text-gray-600 dark:text-gray-300 hover:text-pink-500 dark:hover:text-pink-400 transition-colors duration-300 font-medium pb-1 border-b-2 border-transparent">归档</a>
-                    </li>
-                    <li>
-                      <a routerLink="/friends" 
-                         routerLinkActive="text-pink-500 border-pink-400"
-                         class="text-gray-600 dark:text-gray-300 hover:text-pink-500 dark:hover:text-pink-400 transition-colors duration-300 font-medium pb-1 border-b-2 border-transparent">友方</a>
-                    </li>
-                    <li>
-                      <a routerLink="/about" 
-                         routerLinkActive="text-pink-500 border-pink-400"
-                         class="text-gray-600 dark:text-gray-300 hover:text-pink-500 dark:hover:text-pink-400 transition-colors duration-300 font-medium pb-1 border-b-2 border-transparent">关于</a>
-                    </li>
-                  </ul>
+                
+                <!-- Desktop Navigation -->
+                <nav class="hidden lg:block">
+                  <div class="relative" (mouseleave)="resetUnderline()">
+                    <ul class="flex space-x-6 justify-center">
+                      <li>
+                        <a #navLink routerLink="/home" 
+                           routerLinkActive="text-pink-500"
+                           [routerLinkActiveOptions]="{ exact: true }"
+                           (mouseenter)="moveUnderline($event.currentTarget)"
+                           class="nav-link">首页</a>
+                      </li>
+                      <li>
+                        <a #navLink routerLink="/articles" routerLinkActive="text-pink-500" (mouseenter)="moveUnderline($event.currentTarget)" class="nav-link">文章</a>
+                      </li>
+                      <li>
+                        <a #navLink routerLink="/gallery" routerLinkActive="text-pink-500" (mouseenter)="moveUnderline($event.currentTarget)" class="nav-link">相册</a>
+                      </li>
+                      <li>
+                        <a #navLink routerLink="/archive" routerLinkActive="text-pink-500" (mouseenter)="moveUnderline($event.currentTarget)" class="nav-link">归档</a>
+                      </li>
+                      <li>
+                        <a #navLink routerLink="/friends" routerLinkActive="text-pink-500" (mouseenter)="moveUnderline($event.currentTarget)" class="nav-link">友方</a>
+                      </li>
+                      <li>
+                        <a #navLink routerLink="/about" routerLinkActive="text-pink-500" (mouseenter)="moveUnderline($event.currentTarget)" class="nav-link">关于</a>
+                      </li>
+                    </ul>
+                     <div class="magic-underline"
+                         [style.left]="underlineStyle().left"
+                         [style.width]="underlineStyle().width"
+                         [style.opacity]="underlineStyle().opacity"></div>
+                  </div>
                 </nav>
+
+                <!-- Mobile Navigation -->
+                <nav class="lg:hidden">
+                   <ul class="flex items-center space-x-4 justify-center">
+                      <li>
+                        <a routerLink="/home" routerLinkActive="text-pink-500" [routerLinkActiveOptions]="{ exact: true }" class="nav-link">首页</a>
+                      </li>
+                      <li>
+                        <a routerLink="/articles" routerLinkActive="text-pink-500" class="nav-link">文章</a>
+                      </li>
+                      <li class="relative">
+                        <button #moreMenuButton (click)="toggleMoreMenu()" class="nav-link flex items-center">
+                          更多
+                          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 ml-1 transition-transform duration-200" [class.rotate-180]="isMoreMenuOpen()" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
+                          </svg>
+                        </button>
+
+                        @if (isMoreMenuOpen()) {
+                           <div #moreMenuDropdown class="absolute right-0 mt-2 w-20 bg-white dark:bg-gray-800 rounded-xl shadow-xl ring-1 ring-black ring-opacity-5 z-20 animate-fade-in-down">
+                              <ul class="p-2 space-y-1">
+                                <li>
+                                  <a routerLink="/gallery" routerLinkActive="active-mobile-link" (click)="closeMoreMenu()" class="mobile-nav-link group">
+                                    <span class="transition-transform duration-200 ease-in-out group-hover:translate-x-1">相册</span>
+                                  </a>
+                                </li>
+                                <li>
+                                  <a routerLink="/archive" routerLinkActive="active-mobile-link" (click)="closeMoreMenu()" class="mobile-nav-link group">
+                                    <span class="transition-transform duration-200 ease-in-out group-hover:translate-x-1">归档</span>
+                                  </a>
+                                </li>
+                                <li>
+                                  <a routerLink="/friends" routerLinkActive="active-mobile-link" (click)="closeMoreMenu()" class="mobile-nav-link group">
+                                    <span class="transition-transform duration-200 ease-in-out group-hover:translate-x-1">友方</span>
+                                  </a>
+                                </li>
+                                <li>
+                                  <a routerLink="/about" routerLinkActive="active-mobile-link" (click)="closeMoreMenu()" class="mobile-nav-link group">
+                                    <span class="transition-transform duration-200 ease-in-out group-hover:translate-x-1">关于</span>
+                                  </a>
+                                </li>
+                              </ul>
+                           </div>
+                        }
+                      </li>
+                   </ul>
+                </nav>
+
               </div>
             } @else {
               <div class="w-full px-4 animate-fade-in">
@@ -101,25 +148,61 @@ import { ThemeService } from '../../services/theme.service';
       </div>
     </header>
     <style>
+      .nav-link {
+        @apply text-gray-600 dark:text-gray-300 hover:text-pink-500 dark:hover:text-pink-400 transition-colors duration-300 font-medium pb-2;
+      }
+      .mobile-nav-link {
+        @apply flex items-center w-full text-left px-3 py-2 text-sm text-gray-600 dark:text-gray-300 rounded-lg;
+        @apply hover:bg-pink-50 dark:hover:bg-pink-900/40 hover:text-pink-500 dark:hover:text-pink-400;
+        @apply transition-all duration-200;
+      }
+      .active-mobile-link {
+        @apply font-semibold text-pink-500 dark:text-pink-400 bg-pink-50 dark:bg-pink-900/40;
+      }
       .animate-fade-in {
         animation: fadeIn 0.3s ease-out forwards;
+      }
+      .animate-fade-in-down {
+        animation: fadeInDown 0.2s ease-out forwards;
       }
       @keyframes fadeIn {
         from { opacity: 0; }
         to { opacity: 1; }
       }
+      @keyframes fadeInDown {
+        from { opacity: 0; transform: translateY(-10px); }
+        to { opacity: 1; transform: translateY(0); }
+      }
+      .magic-underline {
+        position: absolute;
+        bottom: 0px;
+        height: 2px;
+        background-image: linear-gradient(to right, #a855f7, #ec4899); /* from-purple-500 to-pink-500 */
+        border-radius: 9999px;
+        transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+      }
     </style>
   `,
   imports: [RouterLink, RouterLinkActive],
   changeDetection: ChangeDetectionStrategy.OnPush,
+  host: {
+    '(document:click)': 'onDocumentClick($event)',
+  }
 })
 export class HeaderComponent {
   themeService = inject(ThemeService);
-  // FIX: Explicitly type the injected Router to resolve the 'unknown' type error.
   private router: Router = inject(Router);
 
   isSearchVisible = signal(false);
+  isMoreMenuOpen = signal(false);
+
   private searchInput = viewChild<ElementRef<HTMLInputElement>>('searchInput');
+  private moreMenuButton = viewChild<ElementRef>('moreMenuButton');
+  private moreMenuDropdown = viewChild<ElementRef>('moreMenuDropdown');
+
+  // --- Magic Underline Logic ---
+  private navLinks = viewChildren<ElementRef<HTMLAnchorElement>>('navLink');
+  underlineStyle = signal({ left: '0px', width: '0px', opacity: '0' });
 
   constructor() {
     effect(() => {
@@ -128,6 +211,21 @@ export class HeaderComponent {
         setTimeout(() => this.searchInput()?.nativeElement.focus(), 50);
       }
     });
+
+    // Effect for magic underline initialization and route changes
+    effect(() => {
+      this.navLinks(); // Depend on the query list
+      // Wait for a tick for routerLinkActive to apply classes, then reset.
+      setTimeout(() => this.resetUnderline(), 50);
+    });
+  }
+  
+  onDocumentClick(event: MouseEvent): void {
+    if (this.isMoreMenuOpen() &&
+        !this.moreMenuButton()?.nativeElement.contains(event.target as Node) &&
+        !this.moreMenuDropdown()?.nativeElement.contains(event.target as Node)) {
+      this.closeMoreMenu();
+    }
   }
 
   toggleTheme(): void {
@@ -137,11 +235,48 @@ export class HeaderComponent {
   toggleSearch(): void {
     this.isSearchVisible.update(v => !v);
   }
+  
+  toggleMoreMenu(): void {
+    this.isMoreMenuOpen.update(v => !v);
+  }
+
+  closeMoreMenu(): void {
+    this.isMoreMenuOpen.set(false);
+  }
 
   performSearch(query: string): void {
     const trimmedQuery = query.trim();
     this.isSearchVisible.set(false);
     // Use null for query param if empty to remove it from URL
     this.router.navigate(['/articles'], { queryParams: { q: trimmedQuery || null } });
+  }
+
+  // --- Magic Underline Methods ---
+  moveUnderline(element: HTMLElement): void {
+    if (!element) return;
+    this.underlineStyle.set({
+      left: `${element.offsetLeft}px`,
+      width: `${element.offsetWidth}px`,
+      opacity: '1'
+    });
+  }
+
+  resetUnderline(): void {
+    // Check if search is visible or screen is small, if so, do nothing.
+    if (this.isSearchVisible() || window.innerWidth < 430) {
+      this.underlineStyle.update(style => ({ ...style, opacity: '0' }));
+      return;
+    };
+
+    const activeLink = this.navLinks().find(linkRef =>
+      linkRef.nativeElement.classList.contains('text-pink-500')
+    );
+
+    if (activeLink) {
+      this.moveUnderline(activeLink.nativeElement);
+    } else {
+      // Hide underline if no active link is found
+      this.underlineStyle.update(style => ({ ...style, opacity: '0' }));
+    }
   }
 }

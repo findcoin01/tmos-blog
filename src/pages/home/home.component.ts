@@ -1,29 +1,26 @@
-import { Component, ChangeDetectionStrategy, signal, OnInit, OnDestroy, inject } from '@angular/core';
-import { DatePipe, DecimalPipe } from '@angular/common';
+import { Component, ChangeDetectionStrategy, inject } from '@angular/core';
+import { DecimalPipe } from '@angular/common';
 import { PostService } from '../../services/post.service';
 
 @Component({
   selector: 'app-home',
   template: `
     <div>
-      <!-- Clock Section -->
-      <div class="text-center pt-12 pb-10">
-        <div class="text-xl mb-4 text-gray-500 dark:text-gray-400">
-          {{ currentTime() | date:'yyyy年MM月dd日 EEEE' }}
-        </div>
-        <div class="text-7xl md:text-9xl font-bold bg-gradient-to-r from-purple-500 to-pink-500 text-transparent bg-clip-text tracking-tight">
-          {{ currentTime() | date:'HH:mm:ss' }}
-        </div>
-      </div>
+      <!-- Famous Quote Section with Background Image -->
+      <div class="relative rounded-2xl shadow-lg overflow-hidden mb-10 h-80 text-white flex flex-col justify-center items-center text-center p-8 bg-cover bg-center"
+           style="background-image: url('https://picsum.photos/seed/sea-blossom/1200/400');">
+        
+        <!-- Overlay for readability -->
+        <div class="absolute inset-0 bg-black/50"></div>
       
-      <!-- Famous Quote Section -->
-      <div class="my-10 max-w-2xl mx-auto text-center px-4">
-        <p class="text-lg md:text-xl italic text-gray-700 dark:text-gray-300 leading-relaxed">
-          “面朝大海，春暖花开。”
-        </p>
-        <p class="mt-4 text-sm text-gray-500 dark:text-gray-400 tracking-wider">
-          — 海子
-        </p>
+        <div class="relative z-10">
+          <p class="text-3xl md:text-4xl font-serif italic leading-relaxed">
+            “面朝大海，春暖花开。”
+          </p>
+          <p class="mt-6 text-lg text-white/80 tracking-wider">
+            — 海子
+          </p>
+        </div>
       </div>
       
       <!-- Site Stats Section -->
@@ -55,28 +52,12 @@ import { PostService } from '../../services/post.service';
       </div>
     </div>
   `,
-  imports: [DatePipe, DecimalPipe],
+  imports: [DecimalPipe],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class HomeComponent implements OnInit, OnDestroy {
-  currentTime = signal(new Date());
-  
+export class HomeComponent {
   private postService = inject(PostService);
+
   totalWordCount = this.postService.totalWordCount;
   totalVisits = this.postService.totalVisits;
-
-  private timerId: any;
-
-  ngOnInit(): void {
-    this.currentTime.set(new Date()); // Initial call
-    this.timerId = setInterval(() => {
-      this.currentTime.set(new Date());
-    }, 1000);
-  }
-
-  ngOnDestroy(): void {
-    if (this.timerId) {
-      clearInterval(this.timerId);
-    }
-  }
 }

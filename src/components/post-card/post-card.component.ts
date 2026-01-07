@@ -20,6 +20,10 @@ export class PostCardComponent {
   private adminService = inject(AdminService);
   isAdmin = this.adminService.isAdmin;
 
+  isLocalUrl(url: string): boolean {
+    return !url.startsWith('http');
+  }
+
   getTagColor(tag: string): string {
     const colors: { [key: string]: string } = {
       '日常': 'bg-pink-100 text-pink-800 dark:bg-pink-900/50 dark:text-pink-300',

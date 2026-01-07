@@ -1,4 +1,3 @@
-
 import { Component, ChangeDetectionStrategy, signal, OnInit, OnDestroy } from '@angular/core';
 
 @Component({
@@ -18,8 +17,17 @@ import { Component, ChangeDetectionStrategy, signal, OnInit, OnDestroy } from '@
         </div>
       </div>
 
-      <p>&copy; {{ currentYear }} TMOS. 版权所有。</p>
-      <p class="mt-1">在 Applet 环境中用 ✨ 精心制作</p>
+      <p class="text-gray-500 dark:text-gray-400">
+        &copy; {{ currentYear }} TMOS. 版权所有
+        <span class="mx-2">|</span>
+        <span>剩余天数: 
+          <span class="font-bold text-gray-600 dark:text-gray-300">{{ countdownDuration().days }}</span> 天
+        </span>
+      </p>
+      
+      <p class="mt-4">
+        <a href="https://beian.miit.gov.cn/" target="_blank" rel="noopener noreferrer" class="hover:text-pink-400 transition-colors">京ICP备20250901号-1</a>
+      </p>
     </footer>
   `,
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -27,14 +35,18 @@ import { Component, ChangeDetectionStrategy, signal, OnInit, OnDestroy } from '@
 export class FooterComponent implements OnInit, OnDestroy {
   currentYear = new Date().getFullYear();
   runtimeDuration = signal({ days: 0, hours: 0, minutes: 0, seconds: 0 });
+  countdownDuration = signal({ days: 0, hours: 0, minutes: 0, seconds: 0 });
   
   private timerId: any;
-  private readonly launchDate = new Date('2025-09-01T00:00:00');
+  private readonly launchDate = new Date('2025-09-22T10:02:08');
+  private readonly expiryDate = new Date('2026-09-23T00:00:00');
 
   ngOnInit(): void {
     this.updateRuntime(); // Initial call
+    this.updateCountdown(); // Initial call
     this.timerId = setInterval(() => {
       this.updateRuntime();
+      this.updateCountdown();
     }, 1000);
   }
 
@@ -65,5 +77,28 @@ export class FooterComponent implements OnInit, OnDestroy {
     const seconds = Math.floor(diff / 1000);
 
     this.runtimeDuration.set({ days, hours, minutes, seconds });
+  }
+
+  private updateCountdown(): void {
+    const now = new Date();
+    let diff = this.expiryDate.getTime() - now.getTime();
+
+    if (diff < 0) {
+      this.countdownDuration.set({ days: 0, hours: 0, minutes: 0, seconds: 0 });
+      return;
+    }
+
+    const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+    diff -= days * (1000 * 60 * 60 * 24);
+
+    const hours = Math.floor(diff / (1000 * 60 * 60));
+    diff -= hours * (1000 * 60 * 60);
+
+    const minutes = Math.floor(diff / (1000 * 60));
+    diff -= minutes * (1000 * 60);
+
+    const seconds = Math.floor(diff / 1000);
+
+    this.countdownDuration.set({ days, hours, minutes, seconds });
   }
 }

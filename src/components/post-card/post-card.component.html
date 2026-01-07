@@ -18,10 +18,14 @@
     </div>
   }
 
-  @if (priority()) {
-    <img [ngSrc]="p.imageUrl" [alt]="p.title" width="600" height="400" priority class="w-full h-48 object-cover"/>
+  @if (isLocalUrl(p.imageUrl)) {
+    <img [src]="p.imageUrl" [alt]="p.title" width="600" height="400" class="w-full h-48 object-cover"/>
   } @else {
-    <img [ngSrc]="p.imageUrl" [alt]="p.title" width="600" height="400" class="w-full h-48 object-cover"/>
+    @if (priority()) {
+      <img [ngSrc]="p.imageUrl" [alt]="p.title" width="600" height="400" priority class="w-full h-48 object-cover"/>
+    } @else {
+      <img [ngSrc]="p.imageUrl" [alt]="p.title" width="600" height="400" class="w-full h-48 object-cover"/>
+    }
   }
   
   <div class="p-5">
