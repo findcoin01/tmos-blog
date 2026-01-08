@@ -1,4 +1,4 @@
-<div class="min-h-screen flex flex-col">
+<div class="min-h-screen flex flex-col transition-opacity duration-500" [class.opacity-0]="isFirstLoad()">
   <app-header></app-header>
 
   <main class="flex-grow container mx-auto p-4 pt-32">
@@ -7,3 +7,9 @@
   
   <app-footer></app-footer>
 </div>
+
+<!-- Loading Screen Overlay -->
+<app-loading-screen 
+  [class.opacity-0]="!isFirstLoad()" 
+  [class.pointer-events-none]="!isFirstLoad()">
+</app-loading-screen>
