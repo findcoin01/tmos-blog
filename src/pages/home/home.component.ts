@@ -1,6 +1,8 @@
-import { Component, ChangeDetectionStrategy, inject } from '@angular/core';
+import { Component, ChangeDetectionStrategy, inject, signal } from '@angular/core';
 import { DecimalPipe } from '@angular/common';
 import { PostService } from '../../services/post.service';
+import { DataService } from '../../services/data.service';
+import { Quote } from '../../models/app-data.model';
 
 @Component({
   selector: 'app-home',
@@ -13,14 +15,23 @@ import { PostService } from '../../services/post.service';
         <!-- Overlay for readability -->
         <div class="absolute inset-0 bg-black/50"></div>
       
-        <div class="relative z-10">
-          <p class="text-3xl md:text-4xl font-serif italic leading-relaxed">
-            “面朝大海，春暖花开。”
-          </p>
-          <p class="mt-6 text-lg text-white/80 tracking-wider">
-            — 海子
-          </p>
-        </div>
+        @if (quote(); as q) {
+          <div class="relative z-10">
+            <p class="text-3xl md:text-4xl font-serif italic leading-relaxed">
+              “{{ q.text }}”
+            </p>
+            <p class="mt-6 text-lg text-white/80 tracking-wider">
+              — {{ q.author }}
+            </p>
+          </div>
+        } @else {
+          <!-- Skeleton loader for quote -->
+          <div class="relative z-10 w-3/4 animate-pulse">
+              <div class="h-8 bg-white/20 rounded-md w-full mb-4"></div>
+              <div class="h-8 bg-white/20 rounded-md w-2/3 mb-6"></div>
+              <div class="h-6 bg-white/20 rounded-md w-1/4 ml-auto"></div>
+          </div>
+        }
       </div>
       
       <!-- Site Stats Section -->
@@ -57,7 +68,25 @@ import { PostService } from '../../services/post.service';
 })
 export class HomeComponent {
   private postService = inject(PostService);
+  private dataService = inject(DataService);
 
   totalWordCount = this.postService.totalWordCount;
   totalVisits = this.postService.totalVisits;
+  quote = signal<Quote | null>(null);
+
+  constructor() {
+    this.dataService.getQuotes().subscribe({
+      next: (quotes) => {
+        if (quotes && quotes.length > 0) {
+          const randomIndex = Math.floor(Math.random() * quotes.length);
+          this.quote.set(quotes[randomIndex]);
+        }
+      },
+      error: (err) => {
+        console.error('Failed to load quotes from db.json', err);
+        // Set a default quote on error to ensure something is always displayed
+        this.quote.set({ text: '面朝大海，春暖花开。', author: '海子' });
+      },
+    });
+  }
 }

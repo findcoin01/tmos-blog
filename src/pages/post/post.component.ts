@@ -36,12 +36,34 @@ interface Heading {
               }
               <div class="p-6 md:p-8">
                 <h1 class="text-3xl md:text-4xl font-bold text-gray-800 dark:text-gray-100 mb-4">{{ p.title }}</h1>
-                <div class="flex items-center text-gray-500 dark:text-gray-400 text-sm">
-                  <img [ngSrc]="p.authorAvatarUrl" alt="Author" width="40" height="40" class="w-10 h-10 rounded-full mr-3"/>
-                  <div>
-                    <p class="font-semibold text-gray-700 dark:text-gray-300">{{ p.author }}</p>
-                    <p>{{ p.publishDate }}</p>
+                <div class="flex justify-between items-center text-gray-500 dark:text-gray-400 text-sm">
+                  <!-- Author Info -->
+                  <div class="flex items-center">
+                    <img [ngSrc]="p.authorAvatarUrl" alt="Author" width="40" height="40" class="w-10 h-10 rounded-full mr-3"/>
+                    <div>
+                      <p class="font-semibold text-gray-700 dark:text-gray-300">{{ p.author }}</p>
+                      <p>{{ p.publishDate }}</p>
+                    </div>
                   </div>
+                  <!-- Like Button -->
+                  <button 
+                    (click)="likePost()"
+                    [disabled]="likeInProgress()"
+                    class="flex items-center space-x-2 px-4 py-2 rounded-full bg-pink-100/50 dark:bg-pink-900/30 hover:bg-pink-100 dark:hover:bg-pink-900/50 transition-colors group"
+                    aria-label="Like this post">
+                    
+                    <svg 
+                      xmlns="http://www.w3.org/2000/svg" 
+                      class="h-6 w-6 text-pink-500 transition-transform group-hover:scale-110"
+                      [class.animate-like-heart]="likeInProgress()"
+                      viewBox="0 0 20 20" fill="currentColor">
+                        <path fill-rule="evenodd" d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z" clip-rule="evenodd" />
+                    </svg>
+                    
+                    <span class="font-mono font-semibold text-pink-600 dark:text-pink-300">
+                      {{ p.likes }}
+                    </span>
+                  </button>
                 </div>
               </div>
             </header>
@@ -95,7 +117,6 @@ interface Heading {
       </aside>
 
     </div>
-
 
     <div class="mt-8 text-center">
         <a routerLink="/articles" class="text-pink-500 hover:text-pink-600 dark:text-pink-400 dark:hover:text-pink-300 transition-colors font-medium">
@@ -274,6 +295,19 @@ interface Heading {
     html.dark app-post .prose img + em {
         color: #9ca3af; /* gray-400 */
     }
+    
+    /* --- Like Button Animation --- */
+    @keyframes like-heart-beat {
+      0% { transform: scale(1); }
+      25% { transform: scale(1.4); }
+      50% { transform: scale(1); }
+      75% { transform: scale(1.2); }
+      100% { transform: scale(1); }
+    }
+
+    .animate-like-heart {
+      animation: like-heart-beat 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+    }
   `],
   imports: [NgOptimizedImage, RouterLink],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -290,6 +324,7 @@ export class PostComponent implements OnInit, OnDestroy, AfterViewInit {
   scrollProgress = signal(0);
   headings = signal<Heading[]>([]);
   activeHeadingId = signal('');
+  likeInProgress = signal(false);
 
   private postId = toSignal(
     this.route.paramMap.pipe(map((params: ParamMap) => Number(params.get('id'))))
@@ -317,6 +352,19 @@ export class PostComponent implements OnInit, OnDestroy, AfterViewInit {
     // Sanitize the HTML before binding to prevent security risks
     return this.sanitizer.bypassSecurityTrustHtml(html as string);
   });
+
+  likePost(): void {
+    if (this.likeInProgress()) return;
+    const post = this.post();
+    if (post) {
+      this.likeInProgress.set(true);
+      this.postService.likePost(post.id);
+
+      setTimeout(() => {
+        this.likeInProgress.set(false);
+      }, 600); // Match animation duration
+    }
+  }
 
   ngOnInit(): void {
     window.addEventListener('scroll', this.onScroll, { passive: true });

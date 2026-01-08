@@ -3,7 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { map, shareReplay } from 'rxjs/operators';
 import { Post } from '../models/post.model';
-import { AppData, GalleryImage, Friend, AboutInfo } from '../models/app-data.model';
+import { AppData, GalleryImage, Friend, AboutInfo, SiteStats, Quote } from '../models/app-data.model';
 
 @Injectable({
   providedIn: 'root',
@@ -29,5 +29,13 @@ export class DataService {
 
   getAboutInfo(): Observable<AboutInfo> {
     return this.data$.pipe(map(data => data.about));
+  }
+
+  getSiteStats(): Observable<SiteStats> {
+    return this.data$.pipe(map(data => data.siteStats));
+  }
+
+  getQuotes(): Observable<Quote[]> {
+    return this.data$.pipe(map(data => data.quotes));
   }
 }

@@ -1,4 +1,5 @@
 import { Injectable, signal, computed, inject } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
 import { Post } from '../models/post.model';
 import { DataService } from './data.service';
 
@@ -7,7 +8,10 @@ import { DataService } from './data.service';
 })
 export class PostService {
   private dataService = inject(DataService);
+  private http = inject(HttpClient);
   private _posts = signal<Post[]>([]);
+
+  totalVisits = signal(0);
 
   constructor() {
     this.dataService.getPosts().subscribe({
@@ -15,6 +19,14 @@ export class PostService {
       error: (err) => {
         console.error('Failed to load posts from db.json', err);
         this._posts.set([]); // Set to empty array on error to prevent downstream issues
+      },
+    });
+
+    this.dataService.getSiteStats().subscribe({
+      next: (stats) => this.totalVisits.set(stats.totalVisits),
+      error: (err) => {
+        console.error('Failed to load site stats from db.json', err);
+        this.totalVisits.set(0);
       },
     });
   }
@@ -31,9 +43,38 @@ export class PostService {
     return this._posts().reduce((acc, post) => acc + post.content.split(/\s+/).length, 0);
   });
   
-  totalVisits = signal(23456); // Mock data for visits
-
   // --- Write Operations ---
+
+  likePost(postId: number): void {
+    // Optimistically update the local state for immediate UI feedback
+    this._posts.update(posts =>
+      posts.map(p =>
+        p.id === postId ? { ...p, likes: p.likes + 1 } : p
+      )
+    );
+
+    // Send the request to the backend.
+    this.http.post<{ post: Post }>(`/blog/like/${postId}`, {}).subscribe({
+      // FIX: Explicitly type the 'response' parameter to resolve the 'unknown' type error.
+      // The compiler was failing to infer the type from the HttpClient.post generic.
+      next: (response: { post: Post }) => {
+        console.log(`Like request for post ${postId} was successful.`);
+        // Sync with server state to prevent desync issues.
+        this._posts.update(posts =>
+          posts.map(p => (p.id === response.post.id ? response.post : p))
+        );
+      },
+      error: (err) => {
+        console.error(`Failed to like post ${postId}. Reverting changes.`, err);
+        // If the API call fails, revert the optimistic update.
+        this._posts.update(posts =>
+          posts.map(p =>
+            p.id === postId ? { ...p, likes: p.likes - 1 } : p
+          )
+        );
+      }
+    });
+  }
 
   addPost(postData: Partial<Post>): void {
     const posts = this._posts();

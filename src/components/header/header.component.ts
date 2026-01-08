@@ -5,11 +5,12 @@ import { ThemeService } from '../../services/theme.service';
 @Component({
   selector: 'app-header',
   template: `
-    <header class="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm fixed w-full top-0 z-50 shadow-sm transition-colors duration-300">
+    <header 
+            class="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm fixed w-full top-0 z-50 shadow-sm transition-all duration-300">
       <div class="container mx-auto px-4 py-4">
         <div class="flex justify-between items-center">
           <div class="flex-1">
-            <button (click)="toggleSearch()" 
+            <button (click)="!isSearchVisible() ? openSearch() : closeSearch()" 
                     class="w-10 h-10 rounded-full flex items-center justify-center text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700 transition-all duration-300"
                     aria-label="Toggle search">
               @if (isSearchVisible()) {
@@ -121,7 +122,7 @@ import { ThemeService } from '../../services/theme.service';
                        type="text"
                        placeholder="搜索文章标题或摘要..."
                        (keyup.enter)="performSearch(searchInput.value)"
-                       (blur)="isSearchVisible.set(false)"
+                       (blur)="closeSearch()"
                        class="w-64 md:w-96 bg-transparent text-center text-gray-800 dark:text-gray-200 placeholder-gray-500 focus:outline-none border-b-2 border-pink-400 py-2 transition-all duration-300" />
               </div>
             }
@@ -195,7 +196,7 @@ export class HeaderComponent {
 
   isSearchVisible = signal(false);
   isMoreMenuOpen = signal(false);
-
+  
   private searchInput = viewChild<ElementRef<HTMLInputElement>>('searchInput');
   private moreMenuButton = viewChild<ElementRef>('moreMenuButton');
   private moreMenuDropdown = viewChild<ElementRef>('moreMenuDropdown');
@@ -232,8 +233,12 @@ export class HeaderComponent {
     this.themeService.toggleTheme();
   }
 
-  toggleSearch(): void {
-    this.isSearchVisible.update(v => !v);
+  openSearch(): void {
+    this.isSearchVisible.set(true);
+  }
+
+  closeSearch(): void {
+    this.isSearchVisible.set(false);
   }
   
   toggleMoreMenu(): void {
@@ -246,7 +251,7 @@ export class HeaderComponent {
 
   performSearch(query: string): void {
     const trimmedQuery = query.trim();
-    this.isSearchVisible.set(false);
+    this.closeSearch();
     // Use null for query param if empty to remove it from URL
     this.router.navigate(['/articles'], { queryParams: { q: trimmedQuery || null } });
   }

@@ -28,9 +28,20 @@ export interface AboutInfo {
   socialLinks: SocialLink[];
 }
 
+export interface SiteStats {
+  totalVisits: number;
+}
+
+export interface Quote {
+  text: string;
+  author: string;
+}
+
 export interface AppData {
   posts: Post[];
   gallery: GalleryImage[];
   friends: Friend[];
   about: AboutInfo;
+  siteStats: SiteStats;
+  quotes: Quote[];
 }

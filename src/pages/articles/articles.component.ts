@@ -1,5 +1,5 @@
 import { Component, ChangeDetectionStrategy, signal, computed, inject, effect } from '@angular/core';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute, Router, ParamMap } from '@angular/router';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { map } from 'rxjs';
 
@@ -29,7 +29,8 @@ export class ArticlesComponent {
 
   // --- Search ---
   searchQuery = toSignal(
-    this.route.queryParamMap.pipe(map(params => params.get('q') ?? ''))
+    // Fix: Explicitly type params as ParamMap to resolve property access error.
+    this.route.queryParamMap.pipe(map((params: ParamMap) => params.get('q') ?? ''))
   );
 
   filteredPosts = computed<Post[]>(() => {

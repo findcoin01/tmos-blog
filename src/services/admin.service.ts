@@ -1,5 +1,5 @@
 import { Injectable, computed, inject } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, ParamMap } from '@angular/router';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { map } from 'rxjs';
 
@@ -12,7 +12,8 @@ export class AdminService {
 
   // Reactively tracks the 'admin' query parameter from the URL.
   private adminQueryParam = toSignal(
-    this.route.queryParamMap.pipe(map(params => params.get('admin')))
+    // Fix: Explicitly type params as ParamMap to resolve property access error.
+    this.route.queryParamMap.pipe(map((params: ParamMap) => params.get('admin')))
   );
 
   /**
