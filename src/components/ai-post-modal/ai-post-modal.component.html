@@ -75,13 +75,29 @@
     </div>
 
     <!-- Footer with actions -->
-    <div class="flex-shrink-0 flex justify-end space-x-3 p-5 bg-gray-50 dark:bg-gray-800/50 rounded-b-2xl border-t border-gray-200 dark:border-gray-700">
-      <button (click)="handleClose()" class="px-4 py-2 bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-300 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-600 transition">
-        取消
-      </button>
-      <button (click)="handleSave()" [disabled]="!postData().title?.trim() || !postData().summary?.trim()" class="px-4 py-2 bg-pink-500 text-white font-semibold rounded-lg shadow-md hover:bg-pink-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
-        {{ isNewPost() ? '创建' : '保存' }}
-      </button>
+    <div class="flex-shrink-0 flex justify-between items-center p-5 bg-gray-50 dark:bg-gray-800/50 rounded-b-2xl border-t border-gray-200 dark:border-gray-700">
+      <div>
+        <button (click)="handleClose()" class="px-4 py-2 bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-300 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-600 transition">
+          取消
+        </button>
+      </div>
+      <div class="flex space-x-3">
+        @if (postData().published) {
+          <button (click)="handleSave(false)" class="px-4 py-2 bg-yellow-400 text-yellow-900 font-semibold rounded-lg hover:bg-yellow-500 transition">
+            取消发布
+          </button>
+          <button (click)="handleSave(true)" [disabled]="!postData().title?.trim() || !postData().summary?.trim()" class="px-4 py-2 bg-pink-500 text-white font-semibold rounded-lg shadow-md hover:bg-pink-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
+            更新
+          </button>
+        } @else {
+          <button (click)="handleSave(false)" class="px-4 py-2 bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-300 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-600 transition">
+            保存草稿
+          </button>
+          <button (click)="handleSave(true)" [disabled]="!postData().title?.trim() || !postData().summary?.trim()" class="px-4 py-2 bg-pink-500 text-white font-semibold rounded-lg shadow-md hover:bg-pink-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
+            发布
+          </button>
+        }
+      </div>
     </div>
   </div>
 </div>

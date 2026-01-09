@@ -150,7 +150,7 @@ export class ArchiveComponent implements AfterViewInit, OnDestroy {
   }
   
   formatDay(dateString: string): string {
-    return new Date(dateString + 'T12:00:00Z').getDate().toString();
+    return new Date(dateString).getDate().toString();
   }
 
   scrollToMonth(event: MouseEvent, monthKey: string): void {

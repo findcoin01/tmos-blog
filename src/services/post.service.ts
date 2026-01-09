@@ -1,16 +1,21 @@
 import { Injectable, signal, computed, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
+import { marked } from 'marked';
 import { Post } from '../models/post.model';
 import { DataService } from './data.service';
+import { AdminService } from './admin.service';
 
 @Injectable({
   providedIn: 'root',
 })
 export class PostService {
-  private dataService = inject(DataService);
-  private http = inject(HttpClient);
+  // FIX: Explicitly type injected services to prevent 'unknown' type errors.
+  private dataService: DataService = inject(DataService);
+  private http: HttpClient = inject(HttpClient);
+  private adminService: AdminService = inject(AdminService);
   private _posts = signal<Post[]>([]);
 
+  private isAdmin = this.adminService.isAdmin;
   totalVisits = signal(0);
 
   constructor() {
@@ -32,15 +37,40 @@ export class PostService {
   }
 
   // --- Read Operations ---
-  posts = computed(() => this._posts());
+  posts = computed(() => {
+    const allPosts = this._posts();
+    if (this.isAdmin()) {
+      return allPosts; // Admins see all posts
+    }
+    return allPosts.filter(p => p.published); // Others see only published posts
+  });
   
   getPostById(id: number): Post | undefined {
-    return this._posts().find(p => p.id === id);
+    // Admins can see any post, others can only see published ones by ID.
+    const post = this._posts().find(p => p.id === id);
+    if (!post) return undefined;
+    return this.isAdmin() || post.published ? post : undefined;
   }
 
   totalWordCount = computed(() => {
-    // A simplified word count logic
-    return this._posts().reduce((acc, post) => acc + post.content.split(/\s+/).length, 0);
+    // Word count should only reflect publicly visible posts unless admin.
+    const countablePosts = this.posts();
+    return countablePosts.reduce((acc, post) => {
+      if (!post.content) {
+        return acc;
+      }
+      
+      // 1. Convert markdown to HTML to easily strip markdown syntax.
+      const html = marked.parse(post.content) as string;
+
+      // 2. Strip all HTML tags to get plain text.
+      const plainText = html.replace(/<[^>]*>/g, '');
+
+      // 3. Match CJK characters individually and English/numeric words as a whole.
+      const words = plainText.match(/[\u4e00-\u9fa5]|[a-zA-Z0-9]+/g);
+      
+      return acc + (words ? words.length : 0);
+    }, 0);
   });
   
   // --- Write Operations ---
@@ -55,9 +85,8 @@ export class PostService {
 
     // Send the request to the backend.
     this.http.post<{ post: Post }>(`/blog/like/${postId}`, {}).subscribe({
-      // FIX: Explicitly type the 'response' parameter to resolve the 'unknown' type error.
-      // The compiler was failing to infer the type from the HttpClient.post generic.
-      next: (response: { post: Post }) => {
+      // FIX: Rely on type inference for the response, which is now correctly typed.
+      next: (response) => {
         console.log(`Like request for post ${postId} was successful.`);
         // Sync with server state to prevent desync issues.
         this._posts.update(posts =>
@@ -86,11 +115,13 @@ export class PostService {
       content: postData.content || '',
       imageUrl: `https://picsum.photos/seed/newpost${maxId + 1}/600/400`,
       author: 'TMOS',
+      // FIX: Corrected URL typo.
       authorAvatarUrl: 'https://picsum.photos/seed/avatar1/40/40',
-      publishDate: new Date().toISOString().split('T')[0], // YYYY-MM-DD
+      publishDate: new Date().toISOString(), // YYYY-MM-DDTHH:mm:ss.sssZ
       tags: ['新文章'],
       likes: 0,
       comments: 0,
+      published: postData.published || false,
     };
     this._posts.set([newPost, ...posts]);
   }

@@ -1,0 +1,107 @@
+<!-- Reading Progress Bar -->
+    <div class="fixed top-0 left-0 w-full h-1 z-[100] pointer-events-none">
+      <div class="h-1 bg-gradient-to-r from-purple-500 to-pink-500 transition-all duration-75 ease-linear" [style.width.%]="scrollProgress()"></div>
+    </div>
+    
+    <div class="flex flex-col lg:flex-row lg:space-x-8">
+
+      <!-- Main Article Content -->
+      <div class="w-full lg:w-3/4">
+        @if (post(); as p) {
+          <article class="bg-white dark:bg-gray-800 rounded-2xl shadow-lg overflow-hidden">
+            <header>
+              @if(isLocalUrl(p.imageUrl)) {
+                <img [src]="p.imageUrl" [alt]="p.title" width="800" height="400" class="w-full h-64 object-cover">
+              } @else {
+                <img [ngSrc]="p.imageUrl" [alt]="p.title" width="800" height="400" priority class="w-full h-64 object-cover">
+              }
+              <div class="p-6 md:p-8">
+                <h1 class="text-3xl md:text-4xl font-bold text-gray-800 dark:text-gray-100 mb-4">{{ p.title }}</h1>
+                <div class="flex justify-between items-center text-gray-500 dark:text-gray-400 text-sm">
+                  <!-- Author Info -->
+                  <div class="flex items-center">
+                    <img [ngSrc]="p.authorAvatarUrl" alt="Author" width="40" height="40" class="w-10 h-10 rounded-full mr-3"/>
+                    <div>
+                      <p class="font-semibold text-gray-700 dark:text-gray-300">{{ p.author }}</p>
+                      <p>{{ formatDateTime(p.publishDate) }}</p>
+                    </div>
+                  </div>
+                  <!-- Like Button -->
+                  <button 
+                    (click)="likePost()"
+                    [disabled]="likeInProgress()"
+                    class="flex items-center space-x-2 px-4 py-2 rounded-full bg-pink-100/50 dark:bg-pink-900/30 hover:bg-pink-100 dark:hover:bg-pink-900/50 transition-colors group"
+                    aria-label="Like this post">
+                    
+                    <svg 
+                      xmlns="http://www.w3.org/2000/svg" 
+                      class="h-6 w-6 text-pink-500 transition-transform group-hover:scale-110"
+                      [class.animate-like-heart]="likeInProgress()"
+                      viewBox="0 0 20 20" fill="currentColor">
+                        <path fill-rule="evenodd" d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z" clip-rule="evenodd" />
+                    </svg>
+                    
+                    <span class="font-mono font-semibold text-pink-600 dark:text-pink-300">
+                      {{ p.likes }}
+                    </span>
+                  </button>
+                </div>
+              </div>
+            </header>
+
+            <div 
+              #articleContent 
+              class="prose dark:prose-invert max-w-none p-6 md:p-8 border-t dark:border-gray-700"
+              [innerHTML]="sanitizedPostContent()">
+            </div>
+
+            <footer class="p-6 md:p-8 border-t dark:border-gray-700 flex flex-wrap gap-2">
+              @for (tag of p.tags; track tag) {
+                <span class="px-3 py-1 text-xs font-medium rounded-full" [class]="getTagColor(tag)">
+                  {{ tag }}
+                </span>
+              }
+            </footer>
+          </article>
+        } @else if (post() === null) {
+          <div class="text-center p-8">
+            <p class="text-gray-500 dark:text-gray-400">文章未找到。</p>
+          </div>
+        } @else {
+          <div class="text-center p-8">
+            <p class="text-gray-500 dark:text-gray-400">正在加载文章...</p>
+          </div>
+        }
+      </div>
+
+      <!-- Table of Contents Sidebar -->
+      <aside class="hidden lg:block w-full lg:w-1/4">
+        @if (headings().length > 0) {
+          <div class="sticky top-32 p-4 bg-white/60 dark:bg-gray-800/60 backdrop-blur-sm rounded-xl shadow-md">
+              <h4 class="text-lg font-bold text-gray-700 dark:text-gray-200 mb-4">目录</h4>
+              <ul class="space-y-2">
+                @for (heading of headings(); track heading.id) {
+                  <li>
+                    <a [href]="'#' + heading.id"
+                       (click)="scrollToHeading($event, heading.id)"
+                       class="block text-sm transition-colors duration-200 border-l-2 pl-3"
+                       [class]="activeHeadingId() === heading.id 
+                                ? 'text-pink-500 dark:text-pink-400 border-pink-500 font-semibold' 
+                                : 'text-gray-500 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 border-transparent'">
+                      {{ heading.text }}
+                    </a>
+                  </li>
+                }
+              </ul>
+          </div>
+        }
+      </aside>
+
+    </div>
+
+    <div class="mt-8 text-center">
+        <a routerLink="/articles" class="text-pink-500 hover:text-pink-600 dark:text-pink-400 dark:hover:text-pink-300 transition-colors font-medium">
+            &larr; 返回文章列表
+        </a>
+    </div>
+  

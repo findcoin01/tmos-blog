@@ -55,7 +55,7 @@ import { ThemeService } from '../../services/theme.service';
                         <a #navLink routerLink="/archive" routerLinkActive="text-pink-500" (mouseenter)="moveUnderline($event.currentTarget)" class="nav-link">归档</a>
                       </li>
                       <li>
-                        <a #navLink routerLink="/friends" routerLinkActive="text-pink-500" (mouseenter)="moveUnderline($event.currentTarget)" class="nav-link">友方</a>
+                        <a #navLink routerLink="/friends" routerLinkActive="text-pink-500" (mouseenter)="moveUnderline($event.currentTarget)" class="nav-link">友链</a>
                       </li>
                       <li>
                         <a #navLink routerLink="/about" routerLinkActive="text-pink-500" (mouseenter)="moveUnderline($event.currentTarget)" class="nav-link">关于</a>
@@ -100,7 +100,7 @@ import { ThemeService } from '../../services/theme.service';
                                 </li>
                                 <li>
                                   <a routerLink="/friends" routerLinkActive="active-mobile-link" (click)="closeMoreMenu()" class="mobile-nav-link group">
-                                    <span class="transition-transform duration-200 ease-in-out group-hover:translate-x-1">友方</span>
+                                    <span class="transition-transform duration-200 ease-in-out group-hover:translate-x-1">友链</span>
                                   </a>
                                 </li>
                                 <li>

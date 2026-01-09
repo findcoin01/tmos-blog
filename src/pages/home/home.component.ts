@@ -10,7 +10,7 @@ import { Quote } from '../../models/app-data.model';
     <div>
       <!-- Famous Quote Section with Background Image -->
       <div class="relative rounded-2xl shadow-lg overflow-hidden mb-10 h-80 text-white flex flex-col justify-center items-center text-center p-8 bg-cover bg-center"
-           style="background-image: url('https://picsum.photos/seed/sea-blossom/1200/400');">
+           [style.background-image]="'url(' + heroImageUrl() + ')'">
         
         <!-- Overlay for readability -->
         <div class="absolute inset-0 bg-black/50"></div>
@@ -73,6 +73,7 @@ export class HomeComponent {
   totalWordCount = this.postService.totalWordCount;
   totalVisits = this.postService.totalVisits;
   quote = signal<Quote | null>(null);
+  heroImageUrl = signal<string>('https://picsum.photos/seed/sea-blossom/1200/400'); // Default fallback
 
   constructor() {
     this.dataService.getQuotes().subscribe({
@@ -86,6 +87,17 @@ export class HomeComponent {
         console.error('Failed to load quotes from db.json', err);
         // Set a default quote on error to ensure something is always displayed
         this.quote.set({ text: '面朝大海，春暖花开。', author: '海子' });
+      },
+    });
+
+    this.dataService.getHomePageConfig().subscribe({
+      next: (config) => {
+        if (config?.heroImageUrl) {
+          this.heroImageUrl.set(config.heroImageUrl);
+        }
+      },
+      error: (err) => {
+        console.error('Failed to load home page config from db.json', err);
       },
     });
   }

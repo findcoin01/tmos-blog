@@ -13,7 +13,7 @@ export const routes: Routes = [
   { path: 'articles', component: ArticlesComponent, title: '文章 | TMOS' },
   { path: 'gallery', component: GalleryComponent, title: '相册 | TMOS' },
   { path: 'archive', component: ArchiveComponent, title: '归档 | TMOS' },
-  { path: 'friends', component: FriendsComponent, title: '友方 | TMOS' },
+  { path: 'friends', component: FriendsComponent, title: '友链 | TMOS' },
   { path: 'about', component: AboutComponent, title: '关于 | TMOS' },
   { path: 'post/:id', component: PostComponent, title: '文章详情 | TMOS' },
   { path: '', redirectTo: 'home', pathMatch: 'full' },

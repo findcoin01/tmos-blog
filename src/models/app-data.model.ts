@@ -37,11 +37,16 @@ export interface Quote {
   author: string;
 }
 
+export interface HomePageConfig {
+  heroImageUrl: string;
+}
+
 export interface AppData {
   posts: Post[];
   gallery: GalleryImage[];
   friends: Friend[];
   about: AboutInfo;
   siteStats: SiteStats;
+  homePageConfig: HomePageConfig;
   quotes: Quote[];
 }

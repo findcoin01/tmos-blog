@@ -1,6 +1,19 @@
 @if (post(); as p) {
-<div class="group relative bg-white dark:bg-gray-800 rounded-2xl shadow-lg overflow-hidden transform hover:-translate-y-1 transition-all duration-300 ease-in-out">
+<div class="group relative bg-white dark:bg-gray-800 rounded-2xl shadow-lg overflow-hidden transform hover:-translate-y-1 transition-all duration-300 ease-in-out"
+     [class.opacity-80]="isAdmin() && !p.published"
+     [class.border-2]="isAdmin() && !p.published"
+     [class.border-dashed]="isAdmin() && !p.published"
+     [class.border-yellow-400]="isAdmin() && !p.published">
   
+  <!-- Draft Badge -->
+  @if (isAdmin() && !p.published) {
+    <div class="absolute top-3 left-3 z-10">
+      <span class="px-2.5 py-1 text-xs font-bold text-yellow-800 bg-yellow-300 dark:bg-yellow-700 dark:text-yellow-100 rounded-full shadow">
+        草稿
+      </span>
+    </div>
+  }
+
   <!-- Management Buttons -->
   @if (isAdmin()) {
     <div class="absolute top-2 right-2 z-10 flex space-x-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
@@ -58,7 +71,7 @@
         <img [ngSrc]="p.authorAvatarUrl" alt="Author" width="32" height="32" class="w-8 h-8 rounded-full mr-3"/>
         <div>
             <p class="text-sm font-semibold text-gray-700 dark:text-gray-300">{{ p.author }}</p>
-            <p class="text-xs">{{ p.publishDate }}</p>
+            <p class="text-xs">{{ p.publishDate.slice(0, 10) }}</p>
         </div>
       </div>
 

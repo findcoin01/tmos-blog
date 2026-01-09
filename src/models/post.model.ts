@@ -1,4 +1,5 @@
 
+
 export interface Post {
   id: number;
   title: string;
@@ -11,4 +12,5 @@ export interface Post {
   tags: string[];
   likes: number;
   comments: number;
+  published: boolean;
 }

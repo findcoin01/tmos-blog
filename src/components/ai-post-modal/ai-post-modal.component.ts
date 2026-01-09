@@ -40,6 +40,7 @@ export class EditPostModalComponent {
           title: '',
           summary: '',
           content: '',
+          published: false,
         });
         this.isNewPost.set(true);
       }
@@ -80,10 +81,11 @@ export class EditPostModalComponent {
     this.postData.update(p => ({ ...p, content }));
   }
 
-  handleSave(): void {
+  handleSave(isPublished: boolean): void {
+    const currentData = this.postData();
     // Basic validation
-    if (this.postData().title?.trim() && this.postData().summary?.trim()) {
-      this.save.emit(this.postData() as Post);
+    if (currentData.title?.trim() && currentData.summary?.trim()) {
+       this.save.emit({ ...currentData, published: isPublished } as Post);
     }
   }
 
